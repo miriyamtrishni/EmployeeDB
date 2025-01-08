@@ -21,7 +21,7 @@ public class CreateEmployeeModel : PageModel
     public string ErrorMessage { get; set; }
     public bool IsSuccess { get; set; }
 
-    private readonly string connectionString = "Data Source=.\\sqlexpress;Initial Catalog=Employee;Integrated Security=True";
+    private readonly string connectionString = "Data Source=MiRiYaM-LAPTOP\\SQLEXPRESS02;Integrated Security=True";  
 
     public void OnGet()
     {

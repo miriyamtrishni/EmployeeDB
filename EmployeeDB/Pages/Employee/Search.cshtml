@@ -15,7 +15,7 @@
                 <option value="">All Branches</option>
                 @foreach (var branch in Model.Branches)
                 {
-                        <option value="@branch.BRANCH_NAME">@branch.BRANCH_NAME</option>
+                    <option value="@branch.BRANCH_NAME">@branch.BRANCH_NAME</option>
                 }
             </select>
         </div>
@@ -58,20 +58,20 @@
             {
                 @foreach (var employee in Model.Employees)
                 {
-                            <tr>
-                                <td>@employee.BranchName</td>
-                                <td>@employee.EmployeeNo</td>
-                                <td>@employee.Name</td>
-                                <td>@employee.Age</td>
-                                <td>@employee.Status</td>
-                            </tr>
+                    <tr>
+                        <td>@employee.BranchName</td>
+                        <td>@employee.EmployeeNo</td>
+                        <td>@employee.Name</td>
+                        <td>@employee.Age</td>
+                        <td>@employee.Status</td>
+                    </tr>
                 }
             }
             else
             {
-                    <tr>
-                        <td colspan="5" class="text-center">No employees found</td>
-                    </tr>
+                <tr>
+                    <td colspan="5" class="text-center">No employees found</td>
+                </tr>
             }
         </tbody>
     </table>
