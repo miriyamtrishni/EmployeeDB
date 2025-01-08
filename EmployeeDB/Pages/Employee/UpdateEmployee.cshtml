@@ -1,0 +1,34 @@
+﻿@page "{id:int}"
+@model UpdateEmployeeModel
+@{
+    ViewData["Title"] = "Update Employee";
+}
+
+<h2 class="text-center my-4">Update Employee</h2>
+
+<div class="container">
+    <form method="post">
+        <!-- Name -->
+        <div class="mb-3">
+            <label for="Name" class="form-label">Name:</label>
+            <input type="text" id="Name" name="Employee.Name" class="form-control" value="@Model.Employee.Name" required />
+        </div>
+
+        <!-- Status -->
+        <div class="mb-3">
+            <label for="Status" class="form-label">Status:</label>
+            <select id="Status" name="Employee.Status" class="form-select" required>
+                <option value="Active" @(Model.Employee.Status == "Active" ? "selected" : "")>Active</option>
+                <option value="Inactive" @(Model.Employee.Status == "Inactive" ? "selected" : "")>Inactive</option>
+            </select>
+        </div>
+
+        <!-- Hidden field to preserve EmployeeNo -->
+        <input type="hidden" name="Employee.EmployeeNo" value="@Model.Employee.EmployeeNo" />
+
+        <!-- Save Button -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-success px-4">Save</button>
+        </div>
+    </form>
+</div>

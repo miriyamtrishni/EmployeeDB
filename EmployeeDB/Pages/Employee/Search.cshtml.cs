@@ -19,12 +19,6 @@ public class EmployeeSearchModel : PageModel
     [BindProperty(SupportsGet = true)]
     public int? Age { get; set; }
 
-    [BindProperty]
-    public EmployeeViewModel Employee { get; set; }
-
-    public string ErrorMessage { get; set; }
-    public string SuccessMessage { get; set; }
-
     private readonly string connectionString = "Data Source=MiRiYaM-LAPTOP\\SQLEXPRESS02;Integrated Security=True";
 
     public void OnGet()
@@ -33,69 +27,18 @@ public class EmployeeSearchModel : PageModel
         SearchEmployees();
     }
 
-    public IActionResult OnPostAdd()
+    public IActionResult OnPostDelete(int id)
     {
-        try
+        using (var connection = new SqlConnection(connectionString))
         {
-            if (Employee != null)
-            {
-                AddEmployee(Employee);
-                SuccessMessage = "Employee added successfully.";
-            }
-            else
-            {
-                ErrorMessage = "Invalid employee data.";
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error adding employee: {ex.Message}";
+            connection.Open();
+            var command = new SqlCommand("DELETE FROM EMPLOYEE WHERE EMPNO = @Id", connection);
+            command.Parameters.AddWithValue("@Id", id);
+            command.ExecuteNonQuery();
         }
 
-        LoadBranches();
-        SearchEmployees();
-        return Page();
-    }
-
-    public IActionResult OnPostUpdate()
-    {
-        try
-        {
-            if (Employee != null && Employee.EmployeeNo > 0)
-            {
-                UpdateEmployee(Employee);
-                SuccessMessage = "Employee updated successfully.";
-            }
-            else
-            {
-                ErrorMessage = "Invalid employee data.";
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error updating employee: {ex.Message}";
-        }
-
-        LoadBranches();
-        SearchEmployees();
-        return Page();
-    }
-
-    public IActionResult OnPostDelete(int employeeNo)
-    {
-        try
-        {
-            DeleteEmployee(employeeNo);
-            SuccessMessage = "Employee deleted successfully.";
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Error deleting employee: {ex.Message}";
-        }
-
-        LoadBranches();
-        SearchEmployees();
-        return Page();
+        // Refresh the page after deleting the record
+        return RedirectToPage();
     }
 
     private void LoadBranches()
@@ -150,55 +93,6 @@ public class EmployeeSearchModel : PageModel
                     });
                 }
             }
-        }
-    }
-
-    private void AddEmployee(EmployeeViewModel employee)
-    {
-        using (var connection = new SqlConnection(connectionString))
-        {
-            connection.Open();
-            var command = new SqlCommand(@"INSERT INTO EMPLOYEE (BRANCH_CODE, NAME, DOB, STATUS)
-                                           VALUES (@BranchCode, @Name, @DOB, @Status)", connection);
-            command.Parameters.AddWithValue("@BranchCode", employee.BranchName);
-            command.Parameters.AddWithValue("@Name", employee.Name);
-            command.Parameters.AddWithValue("@DOB", DateTime.Now.AddYears(-employee.Age));
-            command.Parameters.AddWithValue("@Status", employee.Status);
-
-            command.ExecuteNonQuery();
-        }
-    }
-
-    private void UpdateEmployee(EmployeeViewModel employee)
-    {
-        using (var connection = new SqlConnection(connectionString))
-        {
-            connection.Open();
-            var command = new SqlCommand(@"UPDATE EMPLOYEE SET 
-                                           BRANCH_CODE = @BranchCode,
-                                           NAME = @Name,
-                                           DOB = @DOB,
-                                           STATUS = @Status
-                                           WHERE EMPNO = @EmployeeNo", connection);
-            command.Parameters.AddWithValue("@BranchCode", employee.BranchName);
-            command.Parameters.AddWithValue("@Name", employee.Name);
-            command.Parameters.AddWithValue("@DOB", DateTime.Now.AddYears(-employee.Age));
-            command.Parameters.AddWithValue("@Status", employee.Status);
-            command.Parameters.AddWithValue("@EmployeeNo", employee.EmployeeNo);
-
-            command.ExecuteNonQuery();
-        }
-    }
-
-    private void DeleteEmployee(int employeeNo)
-    {
-        using (var connection = new SqlConnection(connectionString))
-        {
-            connection.Open();
-            var command = new SqlCommand("DELETE FROM EMPLOYEE WHERE EMPNO = @EmployeeNo", connection);
-            command.Parameters.AddWithValue("@EmployeeNo", employeeNo);
-
-            command.ExecuteNonQuery();
         }
     }
 }

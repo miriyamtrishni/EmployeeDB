@@ -51,6 +51,7 @@
                 <th scope="col">Name</th>
                 <th scope="col">Age</th>
                 <th scope="col">Status</th>
+                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -64,13 +65,22 @@
                         <td>@employee.Name</td>
                         <td>@employee.Age</td>
                         <td>@employee.Status</td>
+                        <td>
+                            <!-- Update Button -->
+                            <a asp-page="/UpdateEmployee" asp-route-id="@employee.EmployeeNo" class="btn btn-warning btn-sm">Update</a>
+                            <!-- Delete Button -->
+                            <form method="post" asp-page-handler="Delete" class="d-inline">
+                                <input type="hidden" name="id" value="@employee.EmployeeNo" />
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                 }
             }
             else
             {
                 <tr>
-                    <td colspan="5" class="text-center">No employees found</td>
+                    <td colspan="6" class="text-center">No employees found</td>
                 </tr>
             }
         </tbody>
