@@ -1,142 +1,172 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
-public class CreateEmployeeModel : PageModel
+namespace EmployeeDB.Pages.Employee
 {
-    public int NextEmpNo { get; set; }
-    public List<BranchViewModel> Branches { get; set; } = new List<BranchViewModel>();
-
-    [BindProperty]
-    public string BranchCode { get; set; }
-
-    [BindProperty]
-    public string Name { get; set; }
-
-    [BindProperty]
-    public DateTime DOB { get; set; }
-
-    public string ErrorMessage { get; set; }
-    public bool IsSuccess { get; set; }
-
-    private readonly string connectionString = "Data Source=MiRiYaM-LAPTOP\\SQLEXPRESS02;Integrated Security=True";  
-
-    public void OnGet()
+    public class CreateEmployeeModel : PageModel
     {
-        try
-        {
-            LoadBranches();
-            GetNextEmpNo();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"An error occurred: {ex.Message}";
-        }
-    }
+        private readonly IConfiguration _configuration;
+        private readonly string _connectionString;
 
-    public IActionResult OnPost()
-    {
-        try
+        public CreateEmployeeModel(IConfiguration configuration)
         {
-            LoadBranches();
-            GetNextEmpNo();
+            _configuration = configuration;
+            _connectionString = _configuration.GetConnectionString("DefaultConnection");
+        }
 
-            if (string.IsNullOrWhiteSpace(BranchCode))
+        public int NextEmpNo { get; set; }
+        public List<BranchViewModel> Branches { get; set; } = new List<BranchViewModel>();
+
+        [BindProperty]
+        public string BranchCode { get; set; }
+
+        [BindProperty]
+        public string Name { get; set; }
+
+        [BindProperty]
+        public DateTime DOB { get; set; }
+
+        public string ErrorMessage { get; set; }
+        public bool IsSuccess { get; set; }
+
+        // For dropdowns
+        public SelectList BranchSelectList { get; set; }
+
+        public void OnGet()
+        {
+            try
             {
-                ErrorMessage = "Branch Code is required.";
+                LoadBranches();
+                GetNextEmpNo();
+                BranchSelectList = new SelectList(Branches, "BRANCH_CODE", "BRANCH_NAME", BranchCode);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"An error occurred: {ex.Message}";
+            }
+        }
+
+        public IActionResult OnPost()
+        {
+            try
+            {
+                LoadBranches();
+                GetNextEmpNo();
+                BranchSelectList = new SelectList(Branches, "BRANCH_CODE", "BRANCH_NAME", BranchCode);
+
+                // Input Validation
+                if (string.IsNullOrWhiteSpace(BranchCode))
+                {
+                    ErrorMessage = "Branch is required.";
+                    return Page();
+                }
+
+                if (string.IsNullOrWhiteSpace(Name))
+                {
+                    ErrorMessage = "Employee name is required.";
+                    return Page();
+                }
+
+                if ((DateTime.Now - DOB).TotalDays / 365.25 < 18)
+                {
+                    ErrorMessage = "Employee must be at least 18 years old.";
+                    return Page();
+                }
+
+                AddEmployee();
+                IsSuccess = true;
+
+                // Optionally, reset the form fields after successful creation
+                BranchCode = string.Empty;
+                Name = string.Empty;
+                DOB = DateTime.MinValue;
+                BranchSelectList = new SelectList(Branches, "BRANCH_CODE", "BRANCH_NAME", BranchCode);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"An error occurred: {ex.Message}";
                 return Page();
             }
 
-            if ((DateTime.Now - DOB).TotalDays / 365.25 < 18)
-            {
-                ErrorMessage = "Employee must be at least 18 years old.";
-                return Page();
-            }
-
-            AddEmployee();
-            IsSuccess = true;
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"An error occurred: {ex.Message}";
             return Page();
         }
 
-        return Page();
-    }
-
-    private void LoadBranches()
-    {
-        try
+        private void LoadBranches()
         {
-            using (var connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-                var command = new SqlCommand("SELECT BRANCH_CODE, BRANCH_NAME FROM BRANCHES", connection);
-                using (var reader = command.ExecuteReader())
+                using (var connection = new SqlConnection(_connectionString))
                 {
-                    while (reader.Read())
+                    connection.Open();
+                    var command = new SqlCommand("SELECT BRANCH_CODE, BRANCH_NAME FROM BRANCHES", connection);
+                    using (var reader = command.ExecuteReader())
                     {
-                        Branches.Add(new BranchViewModel
+                        while (reader.Read())
                         {
-                            BRANCH_CODE = reader["BRANCH_CODE"].ToString(),
-                            BRANCH_NAME = reader["BRANCH_NAME"].ToString()
-                        });
+                            Branches.Add(new BranchViewModel
+                            {
+                                BRANCH_CODE = reader["BRANCH_CODE"].ToString(),
+                                BRANCH_NAME = reader["BRANCH_NAME"].ToString()
+                            });
+                        }
                     }
                 }
             }
-        }
-        catch (SqlException ex)
-        {
-            throw new Exception("Error loading branches: " + ex.Message);
-        }
-    }
-
-    private void GetNextEmpNo()
-    {
-        try
-        {
-            using (var connection = new SqlConnection(connectionString))
+            catch (SqlException ex)
             {
-                connection.Open();
-                var command = new SqlCommand("SELECT ISNULL(MAX(EMPNO), 0) + 1 AS NextEmpNo FROM EMPLOYEE", connection);
-                NextEmpNo = (int)command.ExecuteScalar();
+                throw new Exception("Error loading branches: " + ex.Message);
             }
         }
-        catch (SqlException ex)
-        {
-            throw new Exception("Error getting next employee number: " + ex.Message);
-        }
-    }
 
-    private void AddEmployee()
-    {
-        try
+        private void GetNextEmpNo()
         {
-            using (var connection = new SqlConnection(connectionString))
+            try
             {
-                connection.Open();
-                var command = new SqlCommand(@"INSERT INTO EMPLOYEE (EMPNO, BRANCH_CODE, NAME, DOB, STATUS)
-                                               VALUES (@EmpNo, @BranchCode, @Name, @DOB, 'Active')", connection);
-                command.Parameters.AddWithValue("@EmpNo", NextEmpNo);
-                command.Parameters.AddWithValue("@BranchCode", BranchCode);
-                command.Parameters.AddWithValue("@Name", Name);
-                command.Parameters.AddWithValue("@DOB", DOB);
-
-                command.ExecuteNonQuery();
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    var command = new SqlCommand("SELECT ISNULL(MAX(EMPNO), 0) + 1 AS NextEmpNo FROM EMPLOYEE", connection);
+                    NextEmpNo = (int)command.ExecuteScalar();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error getting next employee number: " + ex.Message);
             }
         }
-        catch (SqlException ex)
+
+        private void AddEmployee()
         {
-            throw new Exception("Error adding employee: " + ex.Message);
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    var command = new SqlCommand(@"INSERT INTO EMPLOYEE (EMPNO, BRANCH_CODE, NAME, DOB, STATUS)
+                                                   VALUES (@EmpNo, @BranchCode, @Name, @DOB, 'Active')", connection);
+                    command.Parameters.AddWithValue("@EmpNo", NextEmpNo);
+                    command.Parameters.AddWithValue("@BranchCode", BranchCode);
+                    command.Parameters.AddWithValue("@Name", Name);
+                    command.Parameters.AddWithValue("@DOB", DOB);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error adding employee: " + ex.Message);
+            }
         }
     }
-}
 
-public class BranchViewModel
-{
-    public string BRANCH_CODE { get; set; }
-    public string BRANCH_NAME { get; set; }
+    public class BranchViewModel
+    {
+        public string BRANCH_CODE { get; set; }
+        public string BRANCH_NAME { get; set; }
+    }
 }

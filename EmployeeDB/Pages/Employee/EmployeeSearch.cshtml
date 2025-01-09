@@ -1,0 +1,114 @@
+﻿@page
+@model EmployeeDB.Pages.Employee.EmployeeSearchModel
+@{
+    ViewData["Title"] = "Employee Search";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - EmployeeDB</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center my-4">Employee Search</h2>
+
+        <!-- Success and Error Messages -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Search Form -->
+        <form method="get" class="row g-3 mb-4">
+            <!-- Branch Name -->
+            <div class="col-md-4">
+                <label for="BranchName" class="form-label">Branch Name:</label>
+                <select id="BranchName" name="BranchName" class="form-select" asp-items="Model.BranchSelectList" required>
+                    <option value="">All Branches</option>
+                </select>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-4">
+                <label for="Status" class="form-label">Status:</label>
+                <select id="Status" name="Status" class="form-select" asp-items="Model.StatusSelectList" required>
+                    <option value="">All</option>
+                </select>
+            </div>
+
+            <!-- Age -->
+            <div class="col-md-4">
+                <label for="Age" class="form-label">Age Over:</label>
+                <input type="number" id="Age" name="Age" class="form-control" placeholder="Enter age" value="@(Model.Age.HasValue ? Model.Age.ToString() : "")" min="0" />
+            </div>
+
+            <!-- Search and Add Buttons -->
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary px-4">Search</button>
+                <a asp-page="/Employee/CreateEmployee" class="btn btn-success px-4">Add New Employee</a>
+            </div>
+        </form>
+
+        <!-- Employee Table -->
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Branch Name</th>
+                    <th scope="col">Employee No</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Age</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Employees.Any())
+                {
+                    @foreach (var employee in Model.Employees)
+                    {
+                        <tr>
+                            <td>@employee.BranchName</td>
+                            <td>@employee.EmployeeNo</td>
+                            <td>@employee.Name</td>
+                            <td>@employee.Age</td>
+                            <td>@employee.Status</td>
+                            <td>
+                                <!-- Update Button -->
+                                <a asp-page="/Employee/UpdateEmployee" asp-route-empNo="@employee.EmployeeNo" class="btn btn-warning btn-sm">Update</a>
+                                <!-- Delete Button -->
+                                <form method="post" asp-page-handler="Delete" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this employee?');">
+                                    <input type="hidden" name="id" value="@employee.EmployeeNo" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center">No employees found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
