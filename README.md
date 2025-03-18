@@ -1,6 +1,6 @@
 # Employee Database Management System
 
-![Project Screenshot](https://drive.google.com/file/d/1gxL2phdHjzG07HIw-HU9DfjOGjoKCB9K/view?usp=sharing)
+![Project Screenshot](https://drive.google.com/uc?export=view&id=1gxL2phdHjzG07HIw-HU9DfjOGjoKCB9K)
 
 ## 📌 About the Project
 This is a simple **Employee Database Management System** built using **.NET** with SQL database integration. It is a learning project aimed at understanding database operations, CRUD functionalities, and SQL queries.
@@ -26,10 +26,10 @@ The application allows users to **add employees, search employees, and manage th
 - **Database:** SQL Server
 
 ## 📸 Screenshots
-![Employee List](https://drive.google.com/file/d/1dnBKLK30TSSdX5DZigUrahQ3dC-hpb24/view?usp=sharing)
-![Add Employee](https://drive.google.com/file/d/1YHuSAdhtfMoFKvXcvW_98iTBJte8-_IT/view?usp=sharing)
-![Update Feature](https://drive.google.com/file/d/11_oyP29N2bMlXQ56vhobVtsqYpP1YAdx/view?usp=sharing)
-![Search Feature](https://drive.google.com/file/d/1scZWPXFCgQ-d32dUxLExRfnHKtWhlhFd/view?usp=sharing)
+![Employee List](https://drive.google.com/uc?export=view&id=1dnBKLK30TSSdX5DZigUrahQ3dC-hpb24)
+![Add Employee](https://drive.google.com/uc?export=view&id=1YHuSAdhtfMoFKvXcvW_98iTBJte8-_IT)
+![Update Feature](https://drive.google.com/uc?export=view&id=11_oyP29N2bMlXQ56vhobVtsqYpP1YAdx)
+![Search Feature](https://drive.google.com/uc?export=view&id=1scZWPXFCgQ-d32dUxLExRfnHKtWhlhFd)
 
 ## 🚀 How to Run the Project
 1. **Clone the repository:**
